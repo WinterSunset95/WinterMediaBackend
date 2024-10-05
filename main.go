@@ -6,10 +6,11 @@ import (
 	"os"
 
 	"github.com/WinterSunset95/WinterMediaBackend/api"
+	"github.com/WinterSunset95/WinterMediaBackend/cognito"
 	"github.com/WinterSunset95/WinterMediaBackend/database"
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
-	"github.com/gin-contrib/cors"
 )
 
 func main() {
@@ -20,6 +21,8 @@ func main() {
 	port := os.Getenv("PORT")
 
 	database.Init()
+	cognito.InitCognito()
+
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
 		AllowOrigins: []string{"*"},
@@ -33,12 +36,6 @@ func main() {
 	app.GET("/ping", func(ctx *gin.Context) {
 		ctx.JSON(http.StatusOK, gin.H{
 			"message": "pong",
-		})
-	})
-
-	app.GET("/getmovies", func(ctx *gin.Context) {
-		ctx.JSON(http.StatusOK, gin.H{
-			"message": "Welcome to the getmovies endpoint",
 		})
 	})
 

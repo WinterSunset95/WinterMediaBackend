@@ -89,13 +89,11 @@ func ApplyRoutes(r *gin.RouterGroup) {
 					Genres: genresArr,
 					Director: director,
 				}
-				fmt.Println(id, title, poster, overview, duration, releaseDate, director)
 				movieList = append(movieList, movie)
 			}
 			if err != nil {
 				fmt.Println(err)
 			}
-			fmt.Println(movieList)
 			ctx.JSON(200, &movieList)
 		})
 	}
