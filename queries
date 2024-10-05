@@ -1,0 +1,103 @@
+create table Movies (
+	id VARCHAR(255) PRIMARY KEY,
+    title VARCHAR(255) NOT NULL,
+    poster TEXT,
+    overview TEXT,
+    duration INT,
+    releaseDate DATE,
+    director_id text
+)
+
+insert into table Movies (id, title, poster, overview, duration, releaseDate, director_id)
+
+insert into Movies (id, title, poster, overview, duration, releaseDate, director_id)
+values ('chainsaw-man-amv', 'Chainsaw Man Edit (Beggin)', 'chainsaw-man-amv.jpg', 'Short edit of Beggin'', Starring Chainsaw Man', 36, '2024-10-04', '1')
+
+insert into Movies (id, title, poster, overview, duration, releaseDate, director_id)
+values ('olof-on-fire', 'Olof On Fire (Skyfall Edit)', 'olof-on-fire.jpg', 'Olofmeister and his legendary defuse.', 49, '2024-10-04', '1')
+
+insert into Movies (id, title, poster, overview, duration, releaseDate, director_id)
+values ('those-eyes', 'Those Eyes (New West)', 'those-eyes.jpg',
+'When we''re out in a crowd, laughing loud
+And nobody knows why
+When we''re lost at a club, getting drunk
+And you give me that smile
+Going home in the back of a car
+And your hand touches mine
+When we''re done making love and you look up
+And give me those eyes
+''Cause all of the small things that you do
+Are what remind me why I fell for you
+And when we''re apart and I''m missing you
+I close my eyes and all I see is you
+And the small things you do
+When you call me at night
+While you''re out getting high with your friends
+(High with your friends)
+Every "hi", every "bye", every "I love you" you''ve ever said
+(You''ve ever said)
+''Cause all of the small things that you do
+Are what remind me why I fell for you
+And when we''re apart and I''m missing you
+I close my eyes and all I see is you
+And the small things you do
+When we''re done making love
+And you look up and give me those eyes
+''Cause all of the small things that you do
+Are what remind me why I fell for you
+And when we''re apart and I''m missing you
+I close my eyes and all I see is you
+And the small things you do
+All the small things you do', 221, '2024-10-04', '1')
+
+insert into Persons (person_id, name, picture, bio) values
+('peach', 'Peach', 'peach.jpg', 'Peach is a cute white kitty'),
+('autumn', 'Autumn', 'autumn.jpg', 'Autumn is a programmer who excels in full stack web development' )
+
+insert into Movie_Cast (movie_id, person_id, role) values
+('chainsaw-man-amv', 'peach', 'Extra'),
+('chainsaw-man-amv', 'autumn', 'Extra'),
+('those-eyes', 'peach', 'Extra'),
+('those-eyes', 'autumn', 'Extra'),
+('olof-on-fire', 'peach', 'Extra'),
+('olof-on-fire', 'autumn', 'Extra')
+
+select m.id, m.title, m.director_id, group_concat(mc.person_id separator ', ') as cast from Movies m join Movie_Cast mc on m.id=mc.movie_id group by m.id
+
+select *, group_concat(l.name) as languages,
+group_concat(g.name) as genres
+from Movies m 
+join Movie_Languages ml on m.id=ml.movie_id 
+join Languages l on ml.language_id=l.id 
+join Movie_Genres mg on m.id=mg.movie_id
+join Genres g on mg.genre_id=g.id
+group by m.id
+
+
+select m.id, m.title, m.director_id, group_concat(l.name) as languages,
+group_concat(g.name) as genres
+from Movies m 
+join Movie_Languages ml on m.id=ml.movie_id 
+join Languages l on ml.language_id=l.id 
+join Movie_Genres mg on m.id=mg.movie_id
+join Genres g on mg.genre_id=g.id
+
+select m.id, m.title, m.director_id, json_arrayagg(distinct l.name) as languages,
+json_arrayagg(distinct g.name) as genres,
+json_arrayagg(
+json_object(
+'person_id', p.person_id,
+'name', p.name,
+'picture', p.picture,
+'bio', p.bio,
+'role', mc.role
+)
+)
+from Movies m 
+join Movie_Languages ml on m.id=ml.movie_id 
+join Languages l on ml.language_id=l.id 
+join Movie_Genres mg on m.id=mg.movie_id
+join Genres g on mg.genre_id=g.id
+join Movie_Cast mc on m.id=mc.movie_id
+join Persons p on mc.person_id=p.person_id
+group by m.id
