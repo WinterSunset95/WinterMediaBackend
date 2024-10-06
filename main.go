@@ -39,5 +39,5 @@ func main() {
 		})
 	})
 
-	app.Run(":" + port)
+	app.RunTLS(":" + port, "./selfsigned.crt", "./selfsigned.key")
 }
