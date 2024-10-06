@@ -12,6 +12,7 @@ import (
 	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 func main() {
@@ -24,6 +25,11 @@ func main() {
 
 	database.Init()
 	cognito.InitCognito()
+	certManager := autocert.Manager{
+		Prompt:    autocert.AcceptTOS,
+		HostPolicy: autocert.HostWhitelist("localhost", "ec2-13-235-70-83.ap-south-1.compute.amazonaws.com"),
+		Cache: autocert.DirCache("certs"),
+	}
 
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
@@ -41,5 +47,5 @@ func main() {
 		})
 	})
 
-	autotls.Run(app, "localhost")
+	autotls.RunWithManager(app, &certManager)
 }
