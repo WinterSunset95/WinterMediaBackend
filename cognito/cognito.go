@@ -13,6 +13,7 @@ var CognitoClient *cognitoidentityprovider.Client
 func InitCognito() {
 	ctx := context.Background()
 	sdkConfig, err := config.LoadDefaultConfig(ctx)
+	sdkConfig.Region = "ap-south-1"
 	if err != nil {
 		fmt.Println("Error loading cognito config: " + err.Error())
 	}
