@@ -1,5 +1,6 @@
 package models
 
+// Structs
 type Person struct {
 	PersonId string `gorm:"primaryKey"`
 	Picture string;
@@ -27,3 +28,19 @@ type Movie struct {
 	Director string
 }
 
+type SmallMovieResult struct {
+	Id string
+	Title string
+	Poster string
+}
+
+type FeaturedMovie struct {
+	Id string
+	Title string
+	Poster string
+	Cast []Person
+}
+
+type MovieInfoRequest struct {
+	Id string
+}
