@@ -9,7 +9,6 @@ import (
 	"github.com/WinterSunset95/WinterMediaBackend/cognito"
 	"github.com/WinterSunset95/WinterMediaBackend/database"
 	"github.com/gin-contrib/cors"
-	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"golang.org/x/crypto/acme/autocert"
@@ -30,6 +29,7 @@ func main() {
 		HostPolicy: autocert.HostWhitelist("localhost", "ec2-13-235-70-83.ap-south-1.compute.amazonaws.com"),
 		Cache: autocert.DirCache("certs"),
 	}
+	_ = certManager
 
 	app := gin.Default()
 	app.Use(cors.New(cors.Config{
@@ -47,5 +47,5 @@ func main() {
 		})
 	})
 
-	autotls.RunWithManager(app, &certManager)
+	app.Run(":" + port)
 }
