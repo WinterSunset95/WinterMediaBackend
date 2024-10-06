@@ -9,6 +9,7 @@ import (
 	"github.com/WinterSunset95/WinterMediaBackend/cognito"
 	"github.com/WinterSunset95/WinterMediaBackend/database"
 	"github.com/gin-contrib/cors"
+	"github.com/gin-gonic/autotls"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 )
@@ -19,6 +20,7 @@ func main() {
 		fmt.Println("Error loading .env file")
 	}
 	port := os.Getenv("PORT")
+	_ = port
 
 	database.Init()
 	cognito.InitCognito()
@@ -39,5 +41,5 @@ func main() {
 		})
 	})
 
-	app.RunTLS(":" + port, "./selfsigned.crt", "./selfsigned.key")
+	autotls.Run(app, "localhost")
 }
