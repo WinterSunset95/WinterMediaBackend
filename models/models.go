@@ -25,7 +25,7 @@ type Movie struct {
 	Genres []string
 	Cast []Person
 	Crew []Person
-	Director string
+	Director Person
 }
 
 type SmallMovieResult struct {

@@ -101,3 +101,7 @@ join Genres g on mg.genre_id=g.id
 join Movie_Cast mc on m.id=mc.movie_id
 join Persons p on mc.person_id=p.person_id
 group by m.id
+
+alter table Movies modify director_id varchar(255);
+
+select p.person_id, p.name, p.picture, p.bio from Movies m join Persons p on m.director_id = p.person_id where m.id = 'those-eyes'

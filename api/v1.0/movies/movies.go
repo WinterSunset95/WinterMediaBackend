@@ -93,7 +93,7 @@ func ApplyRoutes(r *gin.RouterGroup) {
 
 			{
 				// Query the movie info
-				query := "select id, title, poster, overview, duration, releaseDate, director_id from Movies where id='" + id + "'"
+				query := "select id, title, poster, overview, duration, releaseDate from Movies where id='" + id + "'"
 				rows, err := db.Query(query)
 				if err != nil {
 					fmt.Println(err)
@@ -102,10 +102,31 @@ func ApplyRoutes(r *gin.RouterGroup) {
 					})
 				}
 				for rows.Next() {
-					err = rows.Scan(&movie.Id, &movie.Title, &movie.Poster, &movie.Overview, &movie.Duration, &movie.ReleaseDate, &movie.Director)
+					err = rows.Scan(&movie.Id, &movie.Title, &movie.Poster, &movie.Overview, &movie.Duration, &movie.ReleaseDate)
 					if err != nil {
 						fmt.Println(err)
 					}
+				}
+			}
+
+			{
+				// Query the director
+				var director models.Person
+				query := "select p.person_id, p.picture, p.name, p.bio from Movies m join Persons p on m.director_id = p.person_id where m.id = '" + id + "'"
+				rows, err := db.Query(query)
+				if err != nil {
+					fmt.Println(err)
+					ctx.JSON(200, gin.H{
+						"error": "Could not get movie info: " + err.Error(),
+					})
+				}
+				for rows.Next() {
+					err = rows.Scan(&director.PersonId, &director.Picture, &director.Name, &director.Bio)
+					if err != nil {
+						fmt.Println(err)
+					}
+					director.Role = "Director"
+					movie.Director = director
 				}
 			}
 			
