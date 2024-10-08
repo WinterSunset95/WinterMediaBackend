@@ -1,6 +1,7 @@
 package auth
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -8,6 +9,7 @@ import (
 	"os"
 
 	"github.com/WinterSunset95/WinterMediaBackend/cognito"
+	"github.com/WinterSunset95/WinterMediaBackend/database"
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider"
 	"github.com/aws/aws-sdk-go-v2/service/cognitoidentityprovider/types"
@@ -38,7 +40,22 @@ type TokenData struct {
 	IdToken string
 }
 
+func getAuthState(jwkSet jwk.Set, ctx *gin.Context) (jwt.Token, error) {
+	var tokenData TokenData
+	err := ctx.ShouldBindJSON(&tokenData)
+	if err != nil {
+		return nil, err
+	}
+	token, err := jwt.Parse([]byte(tokenData.IdToken), jwt.WithKeySet(jwkSet))
+	if err != nil {
+		return nil, err
+	}
+	return token, nil
+}
+
+
 func ApplyRoutes(r *gin.RouterGroup) {
+	jwkSet, jwkError := jwk.Fetch(context.Background(), "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lLhgYR1Ao/.well-known/jwks.json")
 	client := cognito.CognitoClient
 	_ = client
 	clientId := os.Getenv("COGNITO_CLIENT_ID")
@@ -77,6 +94,16 @@ func ApplyRoutes(r *gin.RouterGroup) {
 			if err != nil {
 				ctx.JSON(200, gin.H{
 					"error": err.Error(),
+				})
+				return
+			}
+			// Add user to the Users table
+			query := "insert into Users (user_id, name, email) values ('" + postData.Name + "', '" + postData.Name + "', '" + postData.Email + "')"
+			db := database.DB
+			_, err = db.Exec(query)
+			if err != nil {
+				ctx.JSON(200, gin.H{
+					"error": "Error adding user to database: " + err.Error(),
 				})
 				return
 			}
@@ -159,28 +186,17 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		})
 
 		auth.POST("/get", func(ctx *gin.Context) {
-			jwkSet, err := jwk.Fetch(ctx, "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lLhgYR1Ao/.well-known/jwks.json")
-			if err != nil {
+			if jwkError != nil {
 				ctx.JSON(200, gin.H{
-					"error": "Error fetching jwk: " + err.Error(),
+					"error": "Error fetching jwk: " + jwkError.Error(),
 				})
 				return
 			}
-			var tokenData TokenData
-			err = ctx.ShouldBindJSON(&tokenData)
-			fmt.Println("Token Data: ", tokenData.AccessToken)
-			if err != nil {
-				ctx.JSON(200, gin.H{
-					"error": "Error recieving token data",
-				})
-				return
-			}
-			token, err := jwt.Parse([]byte(tokenData.IdToken), jwt.WithKeySet(jwkSet))
+			token, err := getAuthState(jwkSet, ctx)
 			if err != nil {
 				ctx.JSON(200, gin.H{
 					"error": "Error parsing token: " + err.Error(),
 				})
-				return
 			}
 			ctx.JSON(200, gin.H{
 				"success": token,

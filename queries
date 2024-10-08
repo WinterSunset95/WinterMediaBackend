@@ -105,3 +105,79 @@ group by m.id
 alter table Movies modify director_id varchar(255);
 
 select p.person_id, p.name, p.picture, p.bio from Movies m join Persons p on m.director_id = p.person_id where m.id = 'those-eyes'
+
+// Dated 8/10/2024
+insert into Persons (person_id, name, picture, bio) values
+('akira-tendou', 'Akira Tendou', 'akira-tendou.webp', 'Main character of Zom100'),
+('beatrix-amerhauser', 'Beatrix Amerhauser', 'beatrix-amerhauser.webp', 'Side character in Zom100'),
+('kenichirou-ryuuzaki', 'Kenichirou Ryuuzaki', 'kenichirou-ryuuzaki.webp', 'Akira Tendou''s best friend'),
+('shizuka-mikazuki', 'Shizuka Mikazuki', 'shizuka-mikazuki.webp', 'Akira''s love interest in Zom100'),
+('franky-suantak', 'Franky Suantak', 'franky-suantak.jpg', 'No bio available'),
+('tony-sangboi', 'Tony Sangboi', 'tony-sangboi.jpg', 'No bio available'),
+('helamboi-baite', 'Helamboi Baite', 'helamboi-baite.jpg', 'No bio available')
+
+insert into Movies (id, title, poster, overview, duration, releaseDate, director_id) values
+('the-murder-day', 'The Murder Day', 'the-murder-day.jpeg',
+'A Kuki action-drama film by Director Franky Suantak. <br>
+A motivational movie', 8210, '2023-07-25', 'franky-suantak'),
+('zom100-amv', 'I''m Still Standing (Zom 100 AMV)', 'zom100-amv.jpg',
+'Zom 100: Bucket List of the Dead is an anime series about a 24-year-old office worker who creates a bucket list of 100 things to do before becoming a zombie after a zombie apocalypse hits Tokyo',
+188, '2023-10-27', 'samuvfx')
+
+insert into Persons (person_id, name, picture, bio) values
+('samuvfx', 'SamuVFX', 'samuvfx.jpg', 'A video editor on youtube famous for the ''Skyfall'' edit of Jujutsu Kaisen')
+
+insert into Movie_Genres (movie_id, genre_id) values
+('the-murder-day', 1),
+('zom100-amv', 1),
+('zom100-amv', 2)
+
+insert into Movie_Crew (movie_id, person_id, role) values
+('the-murder-day', 'franky-suantak', 'Director'),
+('the-murder-day', 'tony-sangboi', 'Actor'),
+('the-murder-day', 'helamboi-baite', 'Actress'),
+('zom100-amv', 'akira-tendou', 'Main character'),
+('zom100-amv', 'beatrix-amerhauser', 'Side Character'),
+('zom100-amv', 'kenichirou-ryuuzaki', 'Side Character'),
+('zom100-amv', 'shizuka-mikazuki', 'Side Character'),
+('zom100-amv', 'samuvfx', 'Director')
+
+insert into Movie_Cast (movie_id, person_id, role) values
+('the-murder-day', 'franky-suantak', 'Director'),
+('the-murder-day', 'tony-sangboi', 'Actor'),
+('the-murder-day', 'helamboi-baite', 'Actress'),
+('zom100-amv', 'akira-tendou', 'Main character'),
+('zom100-amv', 'beatrix-amerhauser', 'Side Character'),
+('zom100-amv', 'kenichirou-ryuuzaki', 'Side Character'),
+('zom100-amv', 'shizuka-mikazuki', 'Side Character')
+
+insert into Movie_Genres (movie_id, genre_id) values
+('the-murder-day', 3),
+('the-murder-day', 4),
+('zom100-amv', 8)
+
+insert into Movie_Languages (movie_id, language_id) values
+('the-murder-day', 1),
+('zom100-amv', 1),
+('zom100-amv', 2)
+
+create table Users (
+user_id varchar(100) primary key,
+name varchar(100),
+email varchar(100) not null,
+phone int(20),
+created_at timestamp default current_timestamp,
+picture text
+)
+
+insert into Users (user_id, name, email) values 
+('Wallace', 'Wallace Thiago', 'wintersunset95@gmail.com')
+
+create table Rented_Movies (
+user_id varchar(100),
+movie_id varchar(255),
+rented_at timestamp default current_timestamp,
+primary key (movie_id, user_id),
+foreign key (movie_id) references Movies(id) on delete cascade,
+foreign key (user_id) references Users(user_id) on delete cascade
+)

@@ -30,3 +30,12 @@ type Movie struct {
 	releaseDate string
 	director string
 }
+
+type User struct {
+	Id string
+	Name string
+	Email string
+	Phone string
+	CreatedAt string
+	Picture string
+}
