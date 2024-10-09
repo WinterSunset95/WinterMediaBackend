@@ -1,20 +1,46 @@
 package movies
 
 import (
+	"context"
 	"fmt"
 
 	"github.com/WinterSunset95/WinterMediaBackend/database"
 	"github.com/WinterSunset95/WinterMediaBackend/models"
 	"github.com/gin-gonic/gin"
+	"github.com/lestrrat-go/jwx/jwk"
+	"github.com/lestrrat-go/jwx/jwt"
 )
 
+func checkAuthState(ctx *gin.Context, jwkSet jwk.Set) (jwt.Token, error) {
+	authHeader := ctx.GetHeader("Authorization")
+	if authHeader == "" {
+		ctx.JSON(200, gin.H{
+			"error": "No authorization header",
+		})
+		return nil, fmt.Errorf("No authorization header")
+	}
+	_, _ = jwt.Parse([]byte(authHeader), jwt.WithKeySet(jwkSet))
+	return nil, nil
+}
 
 func ApplyRoutes(r *gin.RouterGroup) {
+	jwkSet, jwkError := jwk.Fetch(context.Background(), "https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_lLhgYR1Ao/.well-known/jwks.json")
+	if jwkError != nil {
+		fmt.Println(jwkError)
+	}
 	db := database.DB
 	_ = db
 	movies := r.Group("/movies")
 	{
 		movies.GET("/list", func(ctx *gin.Context) {
+			_, err := checkAuthState(ctx, jwkSet)
+			if err != nil {
+				ctx.JSON(200, gin.H{
+					"error": "Could not verify authorization: " + err.Error(),
+				})
+				return
+			}
+
 			var movieList []models.SmallMovieResult
 
 			query := `
@@ -46,8 +72,16 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		})
 
 		movies.POST("/getinfo", func(ctx *gin.Context) {
+			_, err := checkAuthState(ctx, jwkSet)
+			if err != nil {
+				ctx.JSON(200, gin.H{
+					"error": "Could not verify authorization: " + err.Error(),
+				})
+				return
+			}
+
 			var movieInfoRequest models.MovieInfoRequest
-			err := ctx.ShouldBindJSON(&movieInfoRequest)
+			err = ctx.ShouldBindJSON(&movieInfoRequest)
 			if err != nil {
 				ctx.JSON(200, gin.H{
 					"error": "Could not get POST data: " + err.Error(),
@@ -185,6 +219,13 @@ func ApplyRoutes(r *gin.RouterGroup) {
 		})
 
 		movies.GET("/featured", func(ctx *gin.Context) {
+			_, err := checkAuthState(ctx, jwkSet)
+			if err != nil {
+				ctx.JSON(200, gin.H{
+					"error": "Could not verify authorization: " + err.Error(),
+				})
+				return
+			}
 			var featuredMovie models.FeaturedMovie
 			query := "select id, title, poster from Movies order by rand() limit 1"
 			rows, err := db.Query(query)
